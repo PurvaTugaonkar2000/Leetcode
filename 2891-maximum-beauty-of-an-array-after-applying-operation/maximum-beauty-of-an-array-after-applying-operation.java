@@ -1,21 +1,14 @@
 class Solution {
     public int maximumBeauty(int[] nums, int k) {
         Arrays.sort(nums);
-        int min = Integer.MIN_VALUE;
-        int left = 0;
-        int ans = 0;
-
-        for (int right = 0; right < nums.length; ++right) {
-            // Keep increasing minimum threashold
-            min = Math.max(min, nums[right] - k);
-
-            while (nums[left] + k < min) {
-                // Reduce window size and bring left within
-                // acceptable range
+        int left  = 0;
+        int result = 0;
+        for(int right = 0; right<nums.length; right++){
+            while(nums[right] - nums[left] > 2*k){
                 left++;
             }
-            ans = Math.max(ans, right - left + 1);
+            result = Math.max(result, right - left +1);
         }
-        return ans;
-    }
+        return result;
+}
 }
