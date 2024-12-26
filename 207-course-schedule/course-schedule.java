@@ -1,54 +1,23 @@
 class Solution {
     public boolean canFinish(int numCourses, int[][] prerequisites) {
-        // Create Array of lists -> adjecency matrix of graph
-        ArrayList<Integer>[] adj = new ArrayList[numCourses];
-        
-        // Fill all the nodes (0 to numCourses - 1) as array index holding newly created arraylists
-        for(int i=0; i<numCourses; i++) {
-            adj[i] = new ArrayList<>();
+        Map<Integer, List<Integer>> preMap = new HashMap<>();
+        Set<Integer> visiting = new HashSet<>();
+        for(int i = 0; i < numCourses; i++) preMap.put(i, new ArrayList<>());
+        for(int[] prereq: prerequisites) preMap.get(prereq[0]).add(prereq[1]);
+        for(int c = 0; c < numCourses; c++){
+            if(!dfs(c, preMap, visiting)) return false;
         }
-        
-        // Fill the arraylists of each nodes with their outgoing edges/connected nodes
-        for(int[] pre : prerequisites) {
-            adj[pre[0]].add(pre[1]);
-        }
-        
-        // Define an array of visited (0 -> unvisited, 1 -> visited, 2 -> completed), initially filled with 0's 
-        int[] visited = new int[numCourses];
-        
-        // Do DFS for each of the array nodes to check a cycle
-        for(int i=0; i<numCourses; i++) {
-            if( !dfs(i, visited, adj))
-                return false;
-        }
-        
         return true;
     }
-    
-    public boolean dfs(int node, int[] visited, ArrayList<Integer>[] adj) {
-        // Return false if the node is visited and viewed again before completion
-        if(visited[node] == 1) {
-            return false;
+    public boolean dfs(int course, Map<Integer, List<Integer>> preMap, Set<Integer> visiting){
+        if(visiting.contains(course)) return false;
+        if(preMap.get(course).isEmpty()) return true;
+        visiting.add(course);
+        for(int pre: preMap.get(course)){
+            if(!dfs(pre, preMap, visiting)) return false;
         }
-        
-        // Return true if the node is completed processing
-        if(visited[node] == 2) {
-            return true;
-        }
-         
-        // Mark the node as visited
-        visited[node] = 1;
-        
-        // DFS of all the other nodes current "node" is connected to
-        for(int n : adj[node]) {
-            if(!dfs(n, visited, adj))
-                return false;
-        }
-        
-        // If no more other nodes for the current "node" mark as completed and return true
-        
-        visited[node] = 2;
-        
+        visiting.remove(course);
+        preMap.put(course, new ArrayList<>());
         return true;
     }
 } 
