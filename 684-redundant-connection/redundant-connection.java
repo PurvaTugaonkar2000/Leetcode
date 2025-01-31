@@ -1,48 +1,51 @@
 class Solution {
-
-    // Performs DFS and returns true if there's a path between src and target.
-    private boolean isConnected(
-        int src,
-        int target,
-        boolean[] visited,
-        List<Integer>[] adjList
-    ) {
-        visited[src] = true;
-
-        if (src == target) {
-            return true;
-        }
-
-        boolean isFound = false;
-        for (int adj : adjList[src]) {
-            if (!visited[adj]) {
-                isFound = isFound || isConnected(adj, target, visited, adjList);
-            }
-        }
-
-        return isFound;
-    }
+    private int[] parent;
+    private int[] rank;
 
     public int[] findRedundantConnection(int[][] edges) {
-        int N = edges.length;
+        int n = edges.length;
+        parent = new int[n + 1];
+        rank = new int[n + 1];
 
-        List<Integer>[] adjList = new ArrayList[N];
-        for (int i = 0; i < N; i++) {
-            adjList[i] = new ArrayList<>();
+        // Initialize each node as its own parent
+        for (int i = 1; i <= n; i++) {
+            parent[i] = i;
         }
 
         for (int[] edge : edges) {
-            boolean[] visited = new boolean[N];
+            int u = edge[0];
+            int v = edge[1];
 
-            // If DFS returns true, we will return the edge.
-            if (isConnected(edge[0] - 1, edge[1] - 1, visited, adjList)) {
-                return new int[] { edge[0], edge[1] };
+            if (find(u) == find(v)) {
+                return edge; // Cycle detected
             }
-
-            adjList[edge[0] - 1].add(edge[1] - 1);
-            adjList[edge[1] - 1].add(edge[0] - 1);
+            join(u, v); // Merge sets
         }
 
-        return new int[] {};
+        return new int[0]; // Unreachable for valid inputs
+    }
+
+    private int find(int i) {
+        if (parent[i] != i) {
+            parent[i] = find(parent[i]); // Path compression
+        }
+        return parent[i];
+    }
+
+    private void join(int u, int v) {
+        int rootU = find(u);
+        int rootV = find(v);
+
+        if (rootU != rootV) {
+            // Union by rank
+            if (rank[rootU] > rank[rootV]) {
+                parent[rootV] = rootU;
+            } else if (rank[rootU] < rank[rootV]) {
+                parent[rootU] = rootV;
+            } else {
+                parent[rootV] = rootU;
+                rank[rootU]++;
+            }
+        }
     }
 }
