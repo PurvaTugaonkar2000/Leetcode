@@ -1,15 +1,13 @@
 class Solution {
     public int[] getSneakyNumbers(int[] nums) {
         Set<Integer> set = new HashSet<>();
-        int[] res = new int[2];
-        int k = 0;
+        List<Integer> res = new ArrayList<>();
         for(int i = 0; i < nums.length; i++){
             if(set.contains(nums[i])){
-                res[k] = nums[i];
-                k++;
+                res.add(nums[i]);
             }
             set.add(nums[i]);
         }
-        return res;
+        return res.stream().mapToInt(Integer::intValue).toArray();
     }
 }
