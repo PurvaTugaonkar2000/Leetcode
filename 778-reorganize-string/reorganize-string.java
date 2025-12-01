@@ -1,33 +1,31 @@
 class Solution {
     public String reorganizeString(String s) {
+        int n = s.length();
         Map<Character, Integer> map = new HashMap<>();
-        for(char c: s.toCharArray()){
-            map.put(c, map.getOrDefault(c,0)+1);
+        for(char ch: s.toCharArray()){
+            map.put(ch, map.getOrDefault(ch, 0)+1);
         }
-        PriorityQueue<Character> maxHeap = new PriorityQueue<>((a,b) -> map.get(b) - map.get(a));
-        maxHeap.addAll(map.keySet());
 
-        StringBuilder res = new StringBuilder();
-        while(maxHeap.size() > 1){
-            char char1 = maxHeap.poll();
-            res.append(char1);
-            map.put(char1, map.getOrDefault(char1,0)-1);
-            char char2 = maxHeap.poll();
-            res.append(char2);
-            map.put(char2, map.getOrDefault(char2,0)-1);
+        int maxFreq = Collections.max(map.values());
+        if(maxFreq > (n+1)/2) return "";
 
-            if(map.get(char1) > 0){
-                maxHeap.add(char1);
+        PriorityQueue<Map.Entry<Character, Integer>> pq = new PriorityQueue<>((a,b) -> b.getValue() - a.getValue());
+        pq.addAll(map.entrySet());
+
+        StringBuilder sb = new StringBuilder();
+        Map.Entry<Character, Integer> prev = null;
+
+        while(!pq.isEmpty()){
+            Map.Entry<Character, Integer> curr = pq.poll();
+            sb.append(curr.getKey());
+
+            curr.setValue(curr.getValue() - 1);
+
+            if(prev != null && prev.getValue() > 0){
+                pq.offer(prev);
             }
-            if(map.get(char2) > 0){
-                maxHeap.add(char2);
-            }
+            prev = curr;
         }
-        if(!maxHeap.isEmpty()){
-            char ch = maxHeap.poll();
-            if(map.get(ch) > 1) return "";
-            res.append(ch);
-        }
-        return res.toString();
+        return sb.toString();
     }
 }
